@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KinoFlix — Telegram бот для кино</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.0/index.css">
+<style>
+  body { font-family: 'Inter', sans-serif; background: #0a0a0f; }
+  .gradient-bg {
+    background: radial-gradient(ellipse at top, #2a0a3e 0%, #0a0a0f 50%),
+                radial-gradient(ellipse at bottom, #3a0a1e 0%, transparent 60%);
+  }
+  .glass {
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .card-hover { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+  .card-hover:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 60px rgba(220, 38, 127, 0.3);
+  }
+  .glow { box-shadow: 0 0 40px rgba(220, 38, 127, 0.4); }
+  .text-gradient {
+    background: linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #6366f1 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .scroll-hide::-webkit-scrollbar { display: none; }
+  .pulse-dot {
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+  .float { animation: float 6s ease-in-out infinite; }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .chat-bubble {
+    animation: slideIn 0.4s ease-out;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body class="gradient-bg text-white min-h-screen">
+
+<!-- Navbar -->
+<nav class="fixed top-0 w-full z-50 glass">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center glow">
+        <svg class="w-6 h-6" fill="white" viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+      </div>
+      <span class="text-xl font-bold text-gradient">KinoFlix</span>
+    </div>
+    <div class="hidden md:flex items-center gap-8 text-sm">
+      <a href="#features" class="hover:text-pink-400 transition">Возможности</a>
+      <a href="#demo" class="hover:text-pink-400 transition">Демо</a>
+      <a href="#how" class="hover:text-pink-400 transition">Как работает</a>
+      <a href="https://t.me/KinoFlixBot" target="_blank" class="px-5 py-2 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 transition font-medium">Открыть бота</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="pt-32 pb-20 px-6">
+  <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+    <div>
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-6">
+        <span class="w-2 h-2 rounded-full bg-green-400 pulse-dot"></span>
+        <span class="text-sm text-gray-300">Бот онлайн · 24/7</span>
+      </div>
+      <h1 class="text-5xl md:text-6xl font-black leading-tight mb-6">
+        Кино в <span class="text-gradient">Telegram</span><br/>за 3 секунды
+      </h1>
+      <p class="text-lg text-gray-400 mb-8 leading-relaxed">
+        Напиши название фильма или код из Instagram Reels — получи ссылку, постер и рейтинг. Без рекламы, без подписок, без воды.
+      </p>
+      <div class="flex flex-wrap gap-4">
+        <a href="#demo" class="px-8 py-4 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 transition font-semibold glow">
+          Попробовать демо
+        </a>
+        <a href="https://t.me/KinoFlixBot" target="_blank" class="px-8 py-4 rounded-full glass hover:bg-white/10 transition font-semibold flex items-center gap-2">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg>
+          Открыть в Telegram
+        </a>
+      </div>
+      <div class="flex items-center gap-6 mt-10 text-sm text-gray-400">
+        <div><span class="text-2xl font-bold text-white">50K+</span><br/>пользователей</div>
+        <div class="w-px h-10 bg-white/10"></div>
+        <div><span class="text-2xl font-bold text-white">100K+</span><br/>фильмов</div>
+        <div class="w-px h-10 bg-white/10"></div>
+        <div><span class="text-2xl font-bold text-white">4.9★</span><br/>рейтинг</div>
+      </div>
+    </div>
+
+    <!-- Phone mockup -->
+    <div class="relative float">
+      <div class="mx-auto max-w-sm glass rounded-[2.5rem] p-4 border-2 border-white/10">
+        <div class="bg-[#0e1621] rounded-[2rem] p-5 min-h-[500px]">
+          <div class="flex items-center gap-3 pb-4 border-b border-white/10 mb-4">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center">
+              <svg class="w-5 h-5" fill="white" viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+            </div>
+            <div>
+              <div class="font-semibold text-sm">KinoFlix Bot</div>
+              <div class="text-xs text-green-400">online</div>
+            </div>
+          </div>
+          <div class="space-y-3" id="chatMessages">
+            <div class="chat-bubble bg-[#182533] rounded-2xl rounded-tl-sm p-3 max-w-[80%] text-sm">
+              👋 Привет! Я <b>KinoFlix</b>.<br/>Напиши название фильма или отправь код из Reels.
+            </div>
+            <div class="chat-bubble bg-[#2b5278] rounded-2xl rounded-tr-sm p-3 max-w-[80%] ml-auto text-sm">
+              Интерстеллар
+            </div>
+            <div class="chat-bubble bg-[#182533] rounded-2xl rounded-tl-sm p-3 max-w-[85%] text-sm">
+              <div class="font-semibold mb-1">🎬 Интерстеллар (2014)</div>
+              <div class="text-xs text-gray-400 mb-2">⭐ 8.7 · Sci-Fi · 2ч 49м</div>
+              <div class="text-xs text-gray-300">Эпическое путешествие группы исследователей сквозь червоточину в поисках нового дома для человечества.</div>
+              <button class="mt-3 w-full py-2 rounded-lg bg-gradient-to-r from-pink-500 to-purple-600 text-xs font-semibold">▶ Смотреть</button>
+            </div>
+          </div>
+          <div class="mt-4 flex gap-2">
+            <input class="flex-1 bg-[#182533] rounded-full px-4 py-2 text-sm outline-none" placeholder="Сообщение..." />
+            <button class="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="white" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section id="features" class="py-20 px-6">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="text-4xl font-black text-center mb-4">Почему <span class="text-gradient">KinoFlix</span>?</h2>
+    <p class="text-center text-gray-400 mb-14">Всё что нужно киноману — в одном боте</p>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="glass rounded-2xl p-6 card-hover">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center mb-4">
+          <svg class="w-7 h-7" fill="white" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        </div>
+        <h3 class="text-xl font-bold mb-2">Умный поиск</h3>
+        <p class="text-gray-400 text-sm">По названию, жанру, году, актёрам. Понимает опечатки и синонимы.</p>
+      </div>
+      <div class="glass rounded-2xl p-6 card-hover">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center mb-4">
+          <svg class="w-7 h-7" fill="white" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <h3 class="text-xl font-bold mb-2">Коды из Reels</h3>
+        <p class="text-gray-400 text-sm">Видишь фильм в Instagram? Введи код из рилса — получишь название за секунду.</p>
+      </div>
+      <div class="glass rounded-2xl p-6 card-hover">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center mb-4">
+          <svg class="w-7 h-7" fill="white" viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+        </div>
+        <h3 class="text-xl font-bold mb-2">Где смотреть</h3>
+        <p class="text-gray-400 text-sm">Ссылки на все стриминги: Кинопоиск, Netflix, Okko, Premier. С ценами.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Demo search -->
+<section id="demo" class="py-20 px-6">
+  <div class="max-w-5xl mx-auto">
+    <h2 class="text-4xl font-black text-center mb-4">Попробуй <span class="text-gradient">прямо сейчас</span></h2>
+    <p class="text-center text-gray-400 mb-10">Введи название фильма или код из Reels</p>
+
+    <div class="glass rounded-2xl p-6 mb-8">
+      <div class="flex gap-3">
+        <div class="relative flex-1">
+          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input id="searchInput" type="text" placeholder="Например: Интерстеллар, KF-2847, или 'комедия 2020'" class="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-4 outline-none focus:border-pink-500 transition" />
+        </div>
+        <button onclick="searchMovies()" class="px-8 py-4 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 transition font-semibold whitespace-nowrap">Найти</button>
+      </div>
+      <div class="flex flex-wrap gap-2 mt-4">
+        <span class="text-xs text-gray-400">Популярное:</span>
+        <button onclick="quickSearch('Дюна')" class="text-xs px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 transition">Дюна</button>
+        <button onclick="quickSearch('Оppenгеймер')" class="text-xs px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 transition">Оppenгеймер</button>
+        <button onclick="quickSearch('KF-1994')" class="text-xs px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 transition">KF-1994</button>
+        <button onclick="quickSearch('комедия')" class="text-xs px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 transition">комедия</button>
+      </div>
+    </div>
+
+    <div id="results" class="grid grid-cols-2 md:grid-cols-4 gap-5">
+      <!-- filled by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section id="how" class="py-20 px-6">
+  <div class="max-w-5xl mx-auto">
+    <h2 class="text-4xl font-black text-center mb-14">Как это <span class="text-gradient">работает</span></h2>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="glass rounded-2xl p-6 text-center">
+        <div class="text-5xl font-black text-gradient mb-3">01</div>
+        <h3 class="font-bold mb-2">Открой бота</h3>
+        <p class="text-sm text-gray-400">Нажми /start в @KinoFlixBot — и ты в игре</p>
+      </div>
+      <div class="glass rounded-2xl p-6 text-center">
+        <div class="text-5xl font-black text-gradient mb-3">02</div>
+        <h3 class="font-bold mb-2">Введи запрос</h3>
+        <p class="text-sm text-gray-400">Название фильма, жанр или код из Reels</p>
+      </div>
+      <div class="glass rounded-2xl p-6 text-center">
+        <div class="text-5xl font-black text-gradient mb-3">03</div>
+        <h3 class="font-bold mb-2">Смотри кино</h3>
+        <p class="text-sm text-gray-400">Получи постер, рейтинг и ссылки на стриминги</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="py-20 px-6">
+  <div class="max-w-4xl mx-auto glass rounded-3xl p-12 text-center relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-purple-600/20"></div>
+    <div class="relative">
+      <h2 class="text-4xl md:text-5xl font-black mb-4">Готов смотреть?</h2>
+      <p class="text-gray-300 mb-8 text-lg">Присоединяйся к 50,000+ киноманов в Telegram</p>
+      <a href="https://t.me/KinoFlixBot" target="_blank" class="inline-flex items-center gap-3 px-10 py-5 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 transition font-bold text-lg glow">
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg>
+        Запустить @KinoFlixBot
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer class="py-10 px-6 border-t border-white/5 text-center text-sm text-gray-500">
+  <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-2">
+      <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center">
+        <svg class="w-4 h-4" fill="white" viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+      </div>
+      <span>KinoFlix © 2026</span>
+    </div>
+    <div class="flex gap-6">
+      <a href="#" class="hover:text-pink-400 transition">Политика</a>
+      <a href="#" class="hover:text-pink-400 transition">Контакты</a>
+      <a href="https://t.me/KinoFlixBot" class="hover:text-pink-400 transition">Telegram</a>
+    </div>
+  </div>
+</footer>
+
+<!-- Movie modal -->
+<div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+  <div class="glass rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto scroll-hide">
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script>
+const movies = [
+  { id:1, title:"Интерстеллар", year:2014, rating:8.7, genre:"Sci-Fi", duration:"2ч 49м", director:"Кристофер Нолан", plot:"Команда исследователей путешествует сквозь червоточину в поисках нового дома для человечества.", poster:"🚀", color:"from-blue-600 to-purple-700", platforms:["Кинопоиск","Okko","Amediateka"] },
+  { id:2, title:"Дюна", year:2021, rating:8.0, genre:"Sci-Fi", duration:"2ч 35м", director:"Дени Вильнёв", plot:"Пол Атрейдес отправляется на самую опасную планету во вселенной, чтобы обеспечить будущее своей семьи.", poster:"🏜️", color:"from-orange-600 to-red-700", platforms:["Кинопоиск","Okko"] },
+  { id:3, title:"Оppenгеймер", year:2023, rating:8.5, genre:"Драма", duration:"3ч 0м", director:"Кристофер Нолан", plot:"История американского учёного, который помог создать атомную бомбу.", poster:"💥", color:"from-yellow-600 to-orange-700", platforms:["Кинопоиск","Premier"] },
+  { id:4, title:"Побег из Шоушенка", year:1994, rating:9.3, genre:"Драма", duration:"2ч 22м", director:"Фрэнк Дарабонт", plot:"Несправедливо осуждённый банкир не теряет надежды в тюрьме строгого режима.", poster:"🔒", color:"from-gray-600 to-slate-800", platforms:["Кинопоиск","Okko","Amediateka"] },
+  { id:5, title:"Начало", year:2010, rating:8.8, genre:"Триллер", duration:"2ч 28м", director:"Кристофер Нолан", plot:"Опытный вор, лучший в опасном искусстве извлечения идей, получает шанс искупить грехи.", poster:"🌀", color:"from-indigo-600 to-blue-800", platforms:["Кинопоиск","Amediateka"] },
+  { id:6, title:"Паразиты", year:2019, rating:8.6, genre:"Триллер", duration:"2ч 12м", director:"Пон Джун-хо", plot:"Жадность и классовое неравенство угрожают симбиозу двух семей.", poster:"🪜", color:"from-green-700 to-emerald-900", platforms:["Кинопоиск","Okko"] },
+  { id:7, title:"Джокер", year:2019, rating:8.4, genre:"Драма", duration:"2ч 2м", director:"Тодд Филлипс", plot:"В Готэм-сити комик Артур Флек сталкивается с обществом и начинает медленно сходить с ума.", poster:"🤡", color:"from-red-700 to-rose-900", platforms:["Кинопоиск","Amediateka"] },
+  { id:8, title:"Властелин колец", year:2001, rating:8.9, genre:"Фэнтези", duration:"2ч 58м", director:"Питер Джексон", plot:"Хоббит Фродо отправляется в опасное путешествие, чтобы уничтожить Кольцо Всевластья.", poster:"💍", color:"from-amber-700 to-yellow-900", platforms:["Кинопоиск","Okko","Amediateka"] },
+  { id:9, title:"Матрица", year:1999, rating:8.7, genre:"Sci-Fi", duration:"2ч 16м", director:"Вачовски", plot:"Хакер узнаёт шокирующую правду о реальности и своей роли в войне против контролёров.", poster:"💊", color:"from-green-600 to-emerald-800", platforms:["Кинопоиск","Amediateka"] },
+  { id:10, title:"Форрест Гамп", year:1994, rating:8.8, genre:"Драма", duration:"2ч 22м", director:"Роберт Земекис", plot:"История жизни простодушного мужчины, который невольно оказывается в центре ключевых событий XX века.", poster:"🏃", color:"from-sky-600 to-blue-800", platforms:["Кинопоиск","Okko"] },
+  { id:11, title:"Тёмный рыцарь", year:2008, rating:9.0, genre:"Боевик", duration:"2ч 32м", director:"Кристофер Нолан", plot:"Бэтмен сталкивается с Джокером — новым преступным гением, сеющим хаос в Готэме.", poster:"🦇", color:"from-slate-700 to-gray-900", platforms:["Кинопоиск","Amediateka"] },
+  { id:12, title:"Бойцовский клуб", year:1999, rating:8.8, genre:"Триллер", duration:"2ч 19м", director:"Дэвид Финчер", plot:"Страдающий бессонницей офисный работник и загадочный торговец мылом создают подпольный клуб.", poster:"🧼", color:"from-pink-700 to-rose-900", platforms:["Кинопоиск","Okko"] }
+];
+
+const resultsEl = document.getElementById('results');
+const searchInput = document.getElementById('searchInput');
+
+function renderMovies(list) {
+  if (!list.length) {
+    resultsEl.innerHTML = `<div class="col-span-full text-center py-16 text-gray-400">
+      <div class="text-6xl mb-4">🎬</div>
+      <p>Ничего не найдено. Попробуй другой запрос.</p>
+    </div>`;
+    return;
+  }
+  resultsEl.innerHTML = list.map(m => `
+    <div onclick="openMovie(${m.id})" class="cursor-pointer card-hover">
+      <div class="aspect-[2/3] rounded-2xl bg-gradient-to-br ${m.color} flex items-center justify-center text-7xl mb-3 relative overflow-hidden">
+        <div class="absolute inset-0 shimmer"></div>
+        <span class="relative">${m.poster}</span>
+        <div class="absolute top-3 right-3 bg-black/60 backdrop-blur px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1">
+          ⭐ ${m.rating}
+        </div>
+      </div>
+      <h3 class="font-semibold text-sm mb-1 truncate">${m.title}</h3>
+      <p class="text-xs text-gray-400">${m.year} · ${m.genre}</p>
+    </div>
+  `).join('');
+}
+
+function searchMovies() {
+  const q = searchInput.value.trim().toLowerCase();
+  if (!q) { renderMovies(movies); return; }
+  
+  // Handle Reels codes like KF-1994
+  if (q.startsWith('kf-')) {
+    const year = parseInt(q.replace('kf-',''));
+    if (!isNaN(year)) {
+      renderMovies(movies.filter(m => m.year === year));
+      return;
+    }
+  }
+  
+  const filtered = movies.filter(m =>
+    m.title.toLowerCase().includes(q) ||
+    m.genre.toLowerCase().includes(q) ||
+    m.director.toLowerCase().includes(q) ||
+    String(m.year).includes(q)
+  );
+  renderMovies(filtered);
+}
+
+function quickSearch(q) {
+  searchInput.value = q;
+  searchMovies();
+  document.getElementById('demo').scrollIntoView({behavior:'smooth'});
+}
+
+function openMovie(id) {
+  const m = movies.find(x => x.id === id);
+  const modal = document.getElementById('modal');
+  document.getElementById('modalContent').innerHTML = `
+    <div class="relative">
+      <div class="aspect-video bg-gradient-to-br ${m.color} flex items-center justify-center text-9xl relative">
+        <div class="absolute inset-0 shimmer"></div>
+        <span class="relative">${m.poster}</span>
+      </div>
+      <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/60 backdrop-blur hover:bg-black/80 transition flex items-center justify-center">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="p-6">
+      <div class="flex items-start justify-between gap-4 mb-4">
+        <div>
+          <h2 class="text-2xl font-black mb-1">${m.title}</h2>
+          <p class="text-sm text-gray-400">${m.year} · ${m.genre} · ${m.duration}</p>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-yellow-500/10 border border-yellow-500/30">
+          <span class="text-yellow-400">⭐</span>
+          <span class="font-bold">${m.rating}</span>
+        </div>
+      </div>
+      <p class="text-gray-300 mb-6 leading-relaxed">${m.plot}</p>
+      <div class="mb-6">
+        <div class="text-xs text-gray-500 mb-2">РЕЖИССЁР</div>
+        <div class="font-semibold">${m.director}</div>
+      </div>
+      <div class="mb-6">
+        <div class="text-xs text-gray-500 mb-3">ГДЕ СМОТРЕТЬ</div>
+        <div class="flex flex-wrap gap-2">
+          ${m.platforms.map(p => `<span class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sm">${p}</span>`).join('')}
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <button class="flex-1 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 font-semibold hover:opacity-90 transition">▶ Смотреть</button>
+        <button onclick="shareMovie(${m.id})" class="px-5 py-3 rounded-xl glass hover:bg-white/10 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+        </button>
+      </div>
+    </div>
+  `;
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+function closeModal() {
+  const modal = document.getElementById('modal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+}
+
+function shareMovie(id) {
+  const m = movies.find(x => x.id === id);
+  const text = `🎬 ${m.title} (${m.year}) ⭐${m.rating}\nСмотри в @KinoFlixBot!`;
+  if (navigator.share) {
+    navigator.share({ title: m.title, text });
+  } else {
+    navigator.clipboard.writeText(text);
+    alert('Скопировано! Отправь друзьям в Telegram.');
+  }
+}
+
+document.getElementById('modal').addEventListener('click', (e) => {
+  if (e.target.id === 'modal') closeModal();
+});
+
+searchInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') searchMovies();
+});
+
+// Initial render
+renderMovies(movies.slice(0, 8));
+</script>
+</body>
+</html>
